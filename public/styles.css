@@ -1,0 +1,19 @@
+body{
+    background: linear-gradient(90deg, #94baf8 0%,#bee5f8,#daeff8 100%);
+}
+
+table{
+    border-style:solid;
+    border-color:black;
+    border-width:1px;
+}
+td{
+    border-style:solid;
+    border-color:blue;
+    border-width:1px;
+
+}
+
+th{
+    background-color:rgb(233, 233, 250);
+}

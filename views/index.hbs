@@ -1,0 +1,494 @@
+<div id="container">
+    <div id="box">
+    <h1>REST Test</h1>
+    <button id="restLoad">Load Data</button>
+    <input type="date"  id="restStartDate" name="restStartDate"> 
+    <input type="date"  id="restEndDate" name="restEndDate">
+    <br>
+
+    <pre id="dis">
+    </pre>
+    
+
+<form method="POST">
+
+    <h1>JSON Test</h1>
+    <button id="jsonLoad">Load Data (JSON)</button>
+    <input type="date"  id="jsonStartDate" name="startJ"> 
+    <input type="date"  id="jsonEndDate" name="endJ">
+    <br>
+
+    <pre id="dis1">
+    </pre>
+
+</form>
+
+<form method="POST">
+
+    <h1>Plotting Test</h1>
+    <button id="plotLoad">Plot</button>
+    <input type="date"  id="plotStartDate" name="startJ"> 
+    <input type="date"  id="plotEndDate" name="endJ">
+    <br>
+    <div id="holdingsForLabels">
+        <label for="Maxtemp">Max Temp</label>
+        <input class="labelInputs" type="checkbox" id="Maxtemp" value="Maxtemp">
+
+        <label for="Mintemp">Min Temp</label>
+        <input class="labelInputs" type="checkbox" id="Mintemp" value="Mintemp">
+
+        <label for="Meantemp">Mean Temp</label>
+        <input class="labelInputs" type="checkbox" id="Meantemp" value="Meantemp">
+
+        <label for="Precip">Precipation</label>
+        <input class="labelInputs" type="checkbox" id="Precip" value="Precip">
+
+        <label for="Rain">Rain</label>
+        <input class="labelInputs" type="checkbox" id="Rain" value="Rain">
+
+        <label for="Snow">Snow</label>
+        <input class="labelInputs" type="checkbox" id="Snow" value="Snow">
+
+        <label for="Groundsnow">Ground snow</label>
+        <input class="labelInputs" type="checkbox" id="Groundsnow" value="Groundsnow">
+    </div>
+    <pre id="dis2">
+    </pre>
+
+</form>
+</div>
+
+</div>
+
+<script src="Chart.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+
+<script>
+    let disPre = document.getElementById('dis');
+    let disPre1 = document.getElementById('dis1');
+    let disPre2 = document.getElementById('dis2');
+    let chart = document.querySelector('#myChart'); 
+    let restLoadButton = document.querySelector('#restLoad');
+    let jsonLoadButton = document.querySelector('#jsonLoad');
+    let plotLoadButton = document.querySelector('#plotLoad');
+
+
+
+     restLoadButton.addEventListener( 'click', (evt) => {
+      
+    
+    var startDate = document.getElementById('restStartDate').value;
+    var endDate = document.getElementById('restEndDate').value;
+        let req = new XMLHttpRequest();
+        req.open('GET', ' /data/' + startDate + '/' + endDate);
+        req.setRequestHeader('Content-Type', 'application/json;charset=UTF-8');
+        req.responseType = 'json';
+
+        req.onload = function(evt){
+            
+            if(req.status == 200){
+               
+                let res = req.response;
+                console.log("res1 is: ",res);
+
+             const createTable = document.createElement('table');
+            const rowHeaders = document.createElement('tr');
+                                
+                let tableHeaders = ['Time','Maxtemp','Mintemp','Meantemp','Precip','Rain','Snow'];
+                for(let i = 0; i<tableHeaders.length; i++){
+                    const tableHeader = document.createElement('th');
+                    tableHeader.innerHTML = tableHeaders[i];
+                    rowHeaders.appendChild(tableHeader);
+                }
+                createTable.appendChild(rowHeaders);
+                               
+                let checker = false;
+
+                for(let j = 0; j<res.result.length; j++){
+                    const row = document.createElement('tr');
+                    while (!checker){
+                        const col1 = document.createElement('td');
+                        col1.innerHTML = res.result[j].time;
+                        row.appendChild(col1);
+                        const col2 = document.createElement('td');
+                        col2.innerHTML = res.result[j].maxtemp;
+                        row.appendChild(col2);
+                        const col3 = document.createElement('td');
+                        col3.innerHTML = res.result[j].mintemp;
+                        row.appendChild(col3);
+                        const col4 = document.createElement('td');
+                        col4.innerHTML = res.result[j].meantemp;
+                        row.appendChild(col4);
+                        const col5 = document.createElement('td');
+                        col5.innerHTML = res.result[j].precip;
+                        row.appendChild(col5);
+                        const col6 = document.createElement('td');
+                        col6.innerHTML = res.result[j].rain;
+                        row.appendChild(col6);
+                        const col7 = document.createElement('td');
+                        col7.innerHTML = res.result[j].snow;
+                        row.appendChild(col7);
+                        checker = true;
+                    }
+                    checker = false;   
+                    createTable.appendChild(row);                               
+                }
+
+                disPre.appendChild(createTable);
+            
+            }
+            else{
+                console.log('Error', req);
+            }
+        }
+
+
+        req.send(); 
+
+    });
+
+
+    jsonLoadButton.addEventListener( 'click', (evt) => {
+            
+    var startDate = document.getElementById('jsonStartDate');
+    var endDate = document.getElementById('jsonEndDate');
+
+    let postReq = new XMLHttpRequest();
+    postReq.open('POST', ' /data/' + startDate + '/' + endDate);
+    postReq.responseType = 'json'; 
+    postReq.setRequestHeader('Content-Type', 'application/json;charset=UTF-8');
+
+    postReq.onload = function(evt){
+            if(postReq.status == 200){
+                let res = postReq.response;
+                const createTable = document.createElement('table');
+                const rowHeaders = document.createElement('tr');
+                                
+                let tableHeaders = ['Time','Maxtemp','Mintemp','Meantemp','Precip','Rain','Snow'];
+                for(let i = 0; i<tableHeaders.length; i++){
+                    const tableHeader = document.createElement('th');
+                    tableHeader.innerHTML = tableHeaders[i];
+                    rowHeaders.appendChild(tableHeader);
+                }
+                createTable.appendChild(rowHeaders);
+            
+                let checker = false;
+
+                for(let j = 0; j<res.result.length; j++){
+                    const row = document.createElement('tr');
+                    while (!checker){
+                        const col1 = document.createElement('td');
+                        col1.innerHTML = res.result[j].time;
+                        row.appendChild(col1);
+                        const col2 = document.createElement('td');
+                        col2.innerHTML = res.result[j].maxtemp;
+                        row.appendChild(col2);
+                        const col3 = document.createElement('td');
+                        col3.innerHTML = res.result[j].mintemp;
+                        row.appendChild(col3);
+                        const col4 = document.createElement('td');
+                        col4.innerHTML = res.result[j].meantemp;
+                        row.appendChild(col4);
+                        const col5 = document.createElement('td');
+                        col5.innerHTML = res.result[j].precip;
+                        row.appendChild(col5);
+                        const col6 = document.createElement('td');
+                        col6.innerHTML = res.result[j].rain;
+                        row.appendChild(col6);
+                        const col7 = document.createElement('td');
+                        col7.innerHTML = res.result[j].snow;
+                        row.appendChild(col7);
+                        checker = true;
+                    }
+                    checker = false;   
+                    createTable.appendChild(row);                               
+                }
+                disPre1.appendChild(createTable);
+            }
+            else{
+                console.log('Error', postReq);
+            }
+        }   
+                let obj1 = {
+                    start : (startDate.value), 
+                    end : (endDate.value)
+                   };
+                let colNames = [];
+          
+                let obj2 = {
+                    colNames: colNames
+                  };
+
+                let objArr = [obj1,obj2];
+        postReq.send( JSON.stringify( objArr) );
+
+        });
+
+ plotLoadButton.addEventListener( 'click', (evt) => {
+            
+    var startDate = document.getElementById('plotStartDate');
+    var endDate = document.getElementById('plotEndDate');
+
+    var VmaxTemp = document.getElementById('Maxtemp'); 
+    var VminTemp = document.getElementById('Mintemp'); 
+    var VmeanTemp = document.getElementById('Meantemp'); 
+    var Vprecip = document.getElementById('Precip'); 
+    var Vrain = document.getElementById('Rain'); 
+    var Vsnow = document.getElementById('Snow'); 
+    var VgroundSnow = document.getElementById('Groundsnow'); 
+
+
+    let PlotReq = new XMLHttpRequest();
+    PlotReq.open('POST', ' /data/' + startDate + '/' + endDate);
+    PlotReq.responseType = 'json'; 
+    PlotReq.setRequestHeader('Content-Type', 'application/json;charset=UTF-8');
+
+    let colNames = ["colmaxtemp","colmintemp","colmeantemp","colprecip","colrain","colsnow","colgroundsnow"];
+    let colNamesFinalData = [];
+    if(VmaxTemp.checked){
+        colNamesFinalData.push("colmaxtemp");
+    }
+    if(VminTemp.checked){
+        colNamesFinalData.push("colmintemp");
+    }
+    
+    if(VmeanTemp.checked){
+        colNamesFinalData.push("colmeantemp");
+    }
+    
+    if(Vprecip.checked){
+        colNamesFinalData.push("colprecip");
+    }
+
+    if(Vrain.checked){
+        colNamesFinalData.push("colrain");
+    }
+    
+    if(Vsnow.checked){
+        colNamesFinalData.push("colsnow");
+    }
+    
+    if(VgroundSnow.checked){
+        colNamesFinalData.push("colgroundsnow");
+    }
+    
+    console.log("SELECTED FOR FINAL ROUND: ",colNamesFinalData);
+    
+    let colmaxtemp = [];
+    let colmintemp = [];
+    let colmeantemp = [];
+    let colprecip = [];
+    let colrain = [];
+    let colsnow = [];
+    let colgroundsnow = [];
+    let counter1 =0;let counter2 =0;let counter3 = 0;let counter4 =0;let counter5 =0;let counter6 = 0;let counter7 =0;
+
+    
+    PlotReq.onload = function(evt){
+            if(PlotReq.status == 200){
+                let res = PlotReq.response;
+                
+                
+                console.log("LENGTH IS: ",res.result.length);
+
+                    while(counter1 <res.result.length){
+                            eval(colNames[0]).push(res.result[counter1].maxtemp); 
+                            counter1++;
+                        }
+
+                    while(counter2 < res.result.length){
+                            eval(colNames[1]).push(res.result[counter2].mintemp); 
+                            counter2++;
+                        }
+
+                    while(counter3 < res.result.length){
+                            eval(colNames[2]).push(res.result[counter3].meantemp); 
+                            counter3++;
+                        }
+                    while(counter4 <res.result.length){
+                            eval(colNames[3]).push(res.result[counter4].precip); 
+                            counter4++;
+                        }
+                    while(counter5 < res.result.length){
+                            eval(colNames[4]).push(res.result[counter5].rain); 
+                            counter5++;
+                        }
+                    while(counter6 < res.result.length){
+                            eval(colNames[5]).push(res.result[counter6].snow); 
+                            counter6++;
+                        }
+                    while(counter7 < res.result.length){
+                            eval(colNames[6]).push(res.result[counter7].groundsnow); 
+                            counter7++;
+                        }
+            
+
+               
+               let value1 =[];
+               let value2 =[];
+               let value3 =[];
+               let value4 =[];
+               let value5 =[];
+               let value6 =[];
+               let value7 =[];
+                
+                 
+                let arrayCounter = colNamesFinalData.length;
+                let tracker =0;
+                while(arrayCounter != 0){   
+                    let index = 0;
+
+                    if(arrayCounter != 0){
+                         value1 = addValuesToArray(colNamesFinalData[index]);
+                         index++;
+                         arrayCounter--;
+                         tracker++;
+                    }
+
+                    if(arrayCounter != 0){
+                        value2 = addValuesToArray(colNamesFinalData[index]);
+                        index++;
+                        arrayCounter--;
+                        tracker++;
+                    }
+
+                    if(arrayCounter != 0){
+                        value3 = addValuesToArray(colNamesFinalData[index]);
+                        index++;
+                        arrayCounter--;
+                        tracker++;
+                    }         
+                    
+                    if(arrayCounter != 0){
+                        value4 = addValuesToArray(colNamesFinalData[index]);
+                        index++;
+                        arrayCounter--;
+                        tracker++;
+                    }
+
+                    if(arrayCounter != 0){
+                        value5 = addValuesToArray(colNamesFinalData[index]);
+                        index++;
+                        arrayCounter--;
+                        tracker++;
+                    }
+
+                    if(arrayCounter != 0){
+                        value6 = addValuesToArray(colNamesFinalData[index]);
+                        index++;
+                        arrayCounter--;
+                        tracker++;
+                    }
+
+                    if(arrayCounter != 0){
+                        value7 = addValuesToArray(colNamesFinalData[index]);
+                        index++;
+                        arrayCounter--;
+                        tracker++;
+                    }
+
+                    if(arrayCounter == 0){
+                        makeGraph(value1,value2,value3,value4,value5,value6,value7)
+                        
+                    }
+
+                }
+        
+
+            function addValuesToArray(receivedArray){
+                    let arrayToBeUsed = eval(receivedArray);
+                    console.log("ARRAY RECEIVED IS: ",arrayToBeUsed);
+                    return arrayToBeUsed;
+            }
+           
+       
+              function makeGraph(value1,value2,value3,value4,value5,value6,value7){
+              var options = {
+                        series: [
+                            {
+                                name: "Max Temp",
+                                data: value1
+                            },
+                            {
+                                name: "Min Temp",
+                                data: value2
+                            },
+                            {
+                                name: "Mean Temp",
+                                data: value3
+                            },
+                            {
+                                name: "Precip",
+                                data: value4
+                            },
+                            {
+                                name: "Rain",
+                                data: value5
+                            },
+                            {
+                                name: "Snow",
+                                data: value6
+                            },
+                            {
+                                name: "Groundsnow",
+                                data: value7
+                            }
+
+
+                        ],
+                        chart: {
+                        height: 350,
+                        type: 'line',
+                        zoom: {
+                            enabled: false
+                        }
+                        },
+                        dataLabels: {
+                        enabled: false
+                        },
+                        stroke: {
+                        curve: 'straight'
+                        },
+                        title: {
+                        text: '',
+                        align: 'left'
+                        },
+                        grid: {
+                        row: {
+                            colors: ['#f3f3f3', 'transparent'], 
+                            opacity: 0.5
+                        },
+                        },
+                        xaxis: {
+                        categories: [],
+                        }
+                        };
+
+                        var chart1 = new ApexCharts(disPre2, options);
+                        chart1.render();
+              }
+
+        
+            }
+            else{
+                console.log('error did not make it', PlotReq);
+            }
+        }   
+        let obj1 = {
+                    start : (startDate.value), 
+                    end : (endDate.value)
+                };
+        
+        let obj2 = {
+            colNames: colNames
+        };
+
+        let objArr = [obj1,obj2];
+
+
+        PlotReq.send( JSON.stringify( objArr) );
+
+        });
+
+    
+</script>
